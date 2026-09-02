@@ -1,8 +1,10 @@
 # The rail, for infrastructure repos (Terraform / Helm / Compose).
 #
-# Note: `make check` here is static only — fmt, validate, lint, template, and
+# Note: `make check` here is static only — fmt, lint, template, and (later)
 # kubeconform. It never touches a cloud account and needs no credentials, which
-# is what lets it run on a fork's pull request safely.
+# is what lets it run safely on a pull request from a fork.
+#
+# Actions are SHA-pinned — see rail-go.yml for why.
 name: rail (infra)
 
 on:
@@ -20,9 +22,6 @@ on:
       runs-on:
         type: string
         default: "ubuntu-latest"
-      timeout-minutes:
-        type: number
-        default: 20
 
 permissions:
   contents: read
@@ -30,19 +29,19 @@ permissions:
 jobs:
   check:
     runs-on: ${{ inputs.runs-on }}
-    timeout-minutes: ${{ inputs.timeout-minutes }}
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: ${{ inputs.terraform-version }}
           terraform_wrapper: false
 
-      - uses: azure/setup-helm@v4
+      - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
         with:
           version: ${{ inputs.helm-version }}
 

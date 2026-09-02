@@ -2,6 +2,11 @@
 #
 # Installs a toolchain and runs `make check`. Nothing else. See README.md for
 # why that constraint is load-bearing rather than stylistic.
+#
+# Third-party actions are pinned by commit SHA, not tag. A tag is mutable —
+# whoever controls the action can repoint v7 at anything, and it would run with
+# whatever permissions the calling workflow has. The trailing comment records
+# the human-readable version so Renovate can still propose upgrades.
 name: rail (go)
 
 on:
@@ -18,9 +23,6 @@ on:
       runs-on:
         type: string
         default: "ubuntu-latest"
-      timeout-minutes:
-        type: number
-        default: 20
 
 permissions:
   contents: read
@@ -28,14 +30,14 @@ permissions:
 jobs:
   check:
     runs-on: ${{ inputs.runs-on }}
-    timeout-minutes: ${{ inputs.timeout-minutes }}
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: ${{ inputs.go-version }}
           # setup-go's built-in cache assumes a single go.sum at a known path.
@@ -44,7 +46,7 @@ jobs:
           cache: false
 
       - name: Cache Go modules and build output
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.cache/go-build

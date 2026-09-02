@@ -1,6 +1,11 @@
 # The harness under its own test: these workflows are linted like any other
 # committed artifact. A broken reusable workflow breaks every repo that calls
 # it, so this is the highest-leverage lint in the portfolio.
+#
+# It is also the gate that would have caught the bug this file's own history
+# records: the first version of these workflows pinned actions to major tags
+# guessed from memory (setup-go@v6, checkout@v5). setup-go@v6 does not exist,
+# so every caller failed to resolve its workflow before a single job started.
 name: self-check
 
 on:
@@ -16,8 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
       - name: Run actionlint
-        uses: docker://rhysd/actionlint:latest
-        with:
-          args: -color
+        run: |
+          bash <(curl -sSf https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color

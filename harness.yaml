@@ -27,8 +27,15 @@ gates:
     enabled: true
 
 known_gaps:
-  - Third-party actions are pinned by tag (@v5), not by commit SHA. SHA-pinning
-    is an S1 task; doing it now would mean inventing SHAs offline.
   - No ratchet checker yet — this file is currently an input with no enforcer.
+
+resolved_in_s0:
+  - "Third-party actions were pinned to major tags recalled from memory
+     (setup-go@v6, checkout@v5, cache@v4). setup-go@v6 does not exist, so every
+     consuming repo failed to resolve its workflow before a single job started.
+     Now SHA-pinned to verified commits with the version in a trailing comment.
+     Pinning by SHA also closes the mutable-tag supply-chain hole, where whoever
+     controls an action can repoint a major tag at new code that then runs with
+     the calling workflow's permissions."
 
 next_step: S1 — SHA-pin actions, add the L1 workflows, write the ratchet checker.

@@ -31,9 +31,6 @@ jobs:
   check:
     runs-on: ${{ inputs.runs-on }}
     timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: ${{ inputs.working-directory }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -57,6 +54,8 @@ jobs:
 
       - name: bootstrap
         run: make bootstrap
+        working-directory: ${{ inputs.working-directory }}
 
       - name: check
         run: make check
+        working-directory: ${{ inputs.working-directory }}

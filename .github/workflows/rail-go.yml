@@ -1,0 +1,60 @@
+# The rail, for Go repos.
+#
+# Installs a toolchain and runs `make check`. Nothing else. See README.md for
+# why that constraint is load-bearing rather than stylistic.
+name: rail (go)
+
+on:
+  workflow_call:
+    inputs:
+      go-version:
+        description: "Go toolchain version."
+        type: string
+        default: "1.26"
+      working-directory:
+        description: "Directory containing the Makefile."
+        type: string
+        default: "."
+      runs-on:
+        type: string
+        default: "ubuntu-latest"
+      timeout-minutes:
+        type: number
+        default: 20
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-go@v6
+        with:
+          go-version: ${{ inputs.go-version }}
+          # setup-go's built-in cache assumes a single go.sum at a known path.
+          # Several of these repos have multiple modules, so we cache by hand
+          # over every go.sum in the tree instead.
+          cache: false
+
+      - name: Cache Go modules and build output
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go${{ inputs.go-version }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go${{ inputs.go-version }}-
+
+      - name: bootstrap
+        run: make bootstrap
+
+      - name: check
+        run: make check

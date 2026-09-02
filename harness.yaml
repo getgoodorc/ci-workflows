@@ -1,0 +1,34 @@
+# Delegation Pyramid position for this repo.
+#
+# `level` is the honest current state; `target` is justified by blast radius,
+# not ambition. A future ratchet check (S1) reads this file and fails CI if
+# `level` decreases or a gate listed here is removed — ratchets only tighten,
+# and weakening one should be a loud, reviewable event.
+schema: 1
+repo: ci-workflows
+
+level: rail
+target: l1
+rationale: >
+  Pure CI definitions with no runtime code. Its blast radius is real but narrow:
+  a break stops every pipeline in the portfolio, which is loud and immediate
+  rather than silent. L1 (lint everything committed, including itself) is the
+  correctly sized investment; there is nothing here for L2+ to check.
+
+gates:
+  - id: rail.verbs
+    description: Standard verb set present and working.
+    enabled: false
+    note: >
+      No Makefile — this repo contains only workflow definitions and is consumed
+      by reference, never built. The rail it provides is for its consumers.
+  - id: rail.self-check
+    description: actionlint runs over this repo's own workflows.
+    enabled: true
+
+known_gaps:
+  - Third-party actions are pinned by tag (@v5), not by commit SHA. SHA-pinning
+    is an S1 task; doing it now would mean inventing SHAs offline.
+  - No ratchet checker yet — this file is currently an input with no enforcer.
+
+next_step: S1 — SHA-pin actions, add the L1 workflows, write the ratchet checker.

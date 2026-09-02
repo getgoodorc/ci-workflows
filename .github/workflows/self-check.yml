@@ -1,0 +1,23 @@
+# The harness under its own test: these workflows are linted like any other
+# committed artifact. A broken reusable workflow breaks every repo that calls
+# it, so this is the highest-leverage lint in the portfolio.
+name: self-check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run actionlint
+        uses: docker://rhysd/actionlint:latest
+        with:
+          args: -color

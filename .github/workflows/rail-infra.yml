@@ -1,0 +1,53 @@
+# The rail, for infrastructure repos (Terraform / Helm / Compose).
+#
+# Note: `make check` here is static only — fmt, validate, lint, template, and
+# kubeconform. It never touches a cloud account and needs no credentials, which
+# is what lets it run on a fork's pull request safely.
+name: rail (infra)
+
+on:
+  workflow_call:
+    inputs:
+      terraform-version:
+        type: string
+        default: "1.16.0"
+      helm-version:
+        type: string
+        default: "v4.2.3"
+      working-directory:
+        type: string
+        default: "."
+      runs-on:
+        type: string
+        default: "ubuntu-latest"
+      timeout-minutes:
+        type: number
+        default: 20
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform-version }}
+          terraform_wrapper: false
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: ${{ inputs.helm-version }}
+
+      - name: bootstrap
+        run: make bootstrap
+
+      - name: check
+        run: make check

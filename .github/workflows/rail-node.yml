@@ -1,0 +1,45 @@
+# The rail, for Node/TypeScript repos.
+name: rail (node)
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: "Node major version."
+        type: string
+        default: "22"
+      working-directory:
+        description: "Directory containing the Makefile."
+        type: string
+        default: "."
+      runs-on:
+        type: string
+        default: "ubuntu-latest"
+      timeout-minutes:
+        type: number
+        default: 20
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ${{ inputs.runs-on }}
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
+
+      - name: bootstrap
+        run: make bootstrap
+
+      - name: check
+        run: make check

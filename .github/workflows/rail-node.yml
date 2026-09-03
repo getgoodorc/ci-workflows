@@ -7,9 +7,12 @@ on:
   workflow_call:
     inputs:
       node-version:
-        description: "Node major version. Should match the repo's .nvmrc."
+        description: >
+          Optional override. Leave empty and let the repo's .nvmrc decide —
+          one source of truth beats a version pinned in two places that can
+          silently disagree.
         type: string
-        default: "22"
+        default: ""
       working-directory:
         description: "Directory containing the Makefile."
         type: string
@@ -30,7 +33,10 @@ jobs:
 
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
+          # node-version wins if set; otherwise .nvmrc does — the same file
+          # nvm/fnm/asdf read locally, so laptop and CI stay in step.
           node-version: ${{ inputs.node-version }}
+          node-version-file: ${{ inputs.working-directory }}/.nvmrc
           cache: npm
           cache-dependency-path: ${{ inputs.working-directory }}/package-lock.json
 

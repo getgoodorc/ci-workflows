@@ -13,9 +13,12 @@ on:
   workflow_call:
     inputs:
       go-version:
-        description: "Go toolchain version."
+        description: >
+          Optional override. Leave empty and let the repo's .go-version file
+          decide — one source of truth beats a version pinned in two places
+          that can silently disagree.
         type: string
-        default: "1.26"
+        default: ""
       working-directory:
         description: "Directory containing the Makefile."
         type: string
@@ -36,7 +39,11 @@ jobs:
 
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
+          # go-version wins if set; otherwise .go-version does. The file is the
+          # intended path — it is what a developer's toolchain manager reads
+          # too, so laptop and CI cannot drift apart.
           go-version: ${{ inputs.go-version }}
+          go-version-file: ${{ inputs.working-directory }}/.go-version
           # setup-go's built-in cache assumes a single go.sum at a known path.
           # Several of these repos have multiple modules, so we cache by hand
           # over every go.sum in the tree instead.

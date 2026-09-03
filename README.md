@@ -1,12 +1,13 @@
 # ci-workflows
 
 Reusable GitHub Actions workflows implementing the **rail** from
-[The Delegation Pyramid](../docs/plan/07-TESTING-HARNESS.md).
+[The Delegation Pyramid](https://github.com/getgoodorc/docs/blob/main/plan/07-TESTING-HARNESS.md).
 
-> This repo is **portfolio-level, not goodorc-specific**. It currently lives inside the
-> `goodorc/` folder for convenience, but it is a standalone repo intended to be pushed as
-> `<owner>/ci-workflows` and consumed by every project you own, in any language. Move the
-> directory whenever you like — nothing references it by path.
+> `getgoodorc/ci-workflows` — deliberately **public**, even though every other repo in the
+> org is private. Two reasons: a private reusable workflow can only be called by repos with
+> the same owner, so public keeps it usable from projects outside the org (chestful, and
+> anything else); and public repos get branch protection for free. There is nothing
+> proprietary here — it is generic CI plumbing.
 
 ## The one rule
 
@@ -30,10 +31,13 @@ on:
   pull_request:
 jobs:
   check:
-    uses: OWNER/ci-workflows/.github/workflows/rail-go.yml@v0
-    with:
-      go-version: "1.26"
+    uses: getgoodorc/ci-workflows/.github/workflows/rail-go.yml@v0
 ```
+
+No `with:` block needed. The toolchain version comes from the repo's own
+`.go-version` (or `.nvmrc` for `rail-node`) — the same file your local version
+manager reads, so a laptop and CI cannot drift apart. Pass `go-version` /
+`node-version` explicitly only to override.
 
 Upgrading every repo's pipeline is then a matter of moving one tag.
 

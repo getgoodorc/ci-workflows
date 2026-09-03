@@ -1,2 +1,5 @@
 .DS_Store
 *.log
+
+# Pinned tools installed by `make bootstrap` (see scripts/install-gitleaks.sh)
+.tools/

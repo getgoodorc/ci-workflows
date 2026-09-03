@@ -24,6 +24,7 @@ ACTIONLINT_VERSION="1.7.12"
 HADOLINT_VERSION="2.15.1"
 SHELLCHECK_VERSION="0.11.0"
 TFLINT_VERSION="0.64.0"
+LYCHEE_VERSION="0.24.2"
 
 case "$(uname -s)" in
   Darwin) OS=darwin ;;
@@ -92,6 +93,18 @@ install_shellcheck() {
             "shellcheck-v${SHELLCHECK_VERSION}/shellcheck" shellcheck
 }
 
+install_lychee() {
+  have lychee "$LYCHEE_VERSION" && return 0
+  local target
+  if [ "$OS" = darwin ]; then
+    [ "$ARCH" = arm64 ] && target="aarch64-apple-darwin" || target="x86_64-apple-darwin"
+  else
+    [ "$ARCH" = arm64 ] && target="aarch64-unknown-linux-gnu" || target="x86_64-unknown-linux-gnu"
+  fi
+  echo "installing lychee $LYCHEE_VERSION"
+  fetch_tar "https://github.com/lycheeverse/lychee/releases/download/lychee-v${LYCHEE_VERSION}/lychee-${target}.tar.gz" "lychee-${target}/lychee" lychee
+}
+
 # Python tools live in an isolated venv. System pythons are increasingly
 # PEP 668 "externally managed", so `pip install` fails outright — and a
 # harness that needs sudo, or that mutates the system interpreter, is a
@@ -119,6 +132,7 @@ for tool in "$@"; do
     shellcheck) install_shellcheck ;;
     tflint)     install_tflint     ;;
     pytools)    install_pytools    ;;
+    lychee)     install_lychee     ;;
     *) echo "install-tool: unknown tool '$tool'" >&2; exit 1 ;;
   esac
 done

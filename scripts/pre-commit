@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Fast pre-commit checks. CI is the authority; this just saves a round trip.
+#
+# Deliberately NOT the full `make check` — a hook slow enough to be annoying is
+# a hook people bypass with --no-verify, and a bypassed gate is worse than no
+# gate because it looks like it is protecting you.
+#
+# Installed by `make bootstrap`. Skip once with: git commit --no-verify
+set -euo pipefail
+
+if [ -x .tools/gitleaks ]; then
+  # Secrets are the one thing you cannot un-push. Worth the second it costs.
+  .tools/gitleaks git --staged --no-banner || {
+    echo
+    echo "pre-commit: a staged change looks like a secret."
+    echo "If it is a false positive, add a scoped path to .gitleaks.toml —"
+    echo "not a blanket exclusion."
+    exit 1
+  }
+fi
+
+if [ -f Makefile ] && grep -qE '^fmt-check:' Makefile; then
+  make --no-print-directory fmt-check || {
+    echo
+    echo "pre-commit: formatting is off. Run 'make fmt' and stage the result."
+    exit 1
+  }
+fi

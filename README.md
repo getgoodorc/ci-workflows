@@ -9,6 +9,9 @@ Reusable GitHub Actions workflows implementing the **rail** from
 > anything else); and public repos get branch protection for free. There is nothing
 > proprietary here — it is generic CI plumbing.
 
+**New here? Read [ADOPTING.md](ADOPTING.md)** — what the Harness is, how to put a repo on
+the rail in about an hour, and what the gates actually catch.
+
 ## The one rule
 
 **CI runs `make check` and nothing else.**
@@ -48,6 +51,13 @@ Upgrading every repo's pipeline is then a matter of moving one tag.
 | `rail-go.yml` | Go repos, including multi-module ones | Go + module/build cache |
 | `rail-node.yml` | Node/TypeScript repos | Node + npm cache |
 | `rail-infra.yml` | Terraform / Helm / compose repos | Terraform + Helm |
+
+## Tools
+
+| File | Purpose |
+|---|---|
+| `tools/install-tool.sh` | Installs pinned lint/security binaries into `.tools/`. Copy to a repo's `scripts/` and call it from `make bootstrap`. |
+| `tools/ratchet.py` | Fails the build if `harness.yaml` loosened a gate relative to `main`. This is what makes "ratchets only tighten" enforceable rather than aspirational. |
 
 All three accept a `working-directory` input for repos where the Makefile isn't at the root.
 
